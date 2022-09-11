@@ -1,12 +1,18 @@
 import React from "react";
-import { Global } from "@emotion/react";
-import reset from "./resetCss";
+import { Grid } from "@mui/material";
+import { Header } from "./components";
 
 const App = () => {
   return (
-    <>
-      <Global styles={reset} />
-    </>
+    <Grid
+      className={"container"}
+      container
+      alignContent={"flex-start"}
+      width={"100%"}
+      height={"100vh"}
+    >
+      <Header />
+    </Grid>
   );
 };
 

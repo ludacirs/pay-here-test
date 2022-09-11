@@ -10,7 +10,10 @@ module.exports = {
   },
   resolve: {
     extensions: [".ts", ".tsx", ".js", ".jsx"],
-    alias: {},
+    alias: {
+      "@components": path.resolve(__dirname, "./src/components"),
+      "@recoil": path.resolve(__dirname, "./src/recoil"),
+    },
   },
   module: {
     rules: [

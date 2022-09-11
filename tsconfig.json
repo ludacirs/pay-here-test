@@ -4,7 +4,11 @@
     // "lib": [],
     "jsx": "react",
     "module": "commonjs",
-    "baseUrl": "./",
+    "baseUrl": ".",
+    "paths": {
+      "@components/*": ["./src/components/*"],
+      "@recoil/*": ["./src/recoil/*"]
+    },
 
     "isolatedModules": true,
     "esModuleInterop": true,
