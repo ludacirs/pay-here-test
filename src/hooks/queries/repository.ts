@@ -1,13 +1,13 @@
 import { useQuery } from "react-query";
 import octokit from "@api";
-import { Repository } from "./queryKeys";
+import { REPOSITORY_KEY } from "./queryKeys";
 import { ReturnTypeOf } from "@octokit/core/dist-types/types";
 
 const fetchSearchRepository = (q: string) =>
   octokit.request("GET /search/repositories", { q });
 
 const useRepository = (q: string) => {
-  return useQuery(Repository.Search, () => fetchSearchRepository(q), {
+  return useQuery([REPOSITORY_KEY.SEARCH], () => fetchSearchRepository(q), {
     enabled: false,
   });
 };

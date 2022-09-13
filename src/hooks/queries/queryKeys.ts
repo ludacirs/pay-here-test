@@ -1,5 +1,6 @@
-enum Repository {
-  Search = "REPOSITORY_SEARCH",
-}
+const REPOSITORY_KEY = {
+  SEARCH: "REPOSITORY_SEARCH",
+} as const;
 
-export { Repository };
+
+export { REPOSITORY_KEY };
