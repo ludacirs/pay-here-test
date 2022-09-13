@@ -19,6 +19,7 @@ module.exports = {
       "@recoil": path.resolve(__dirname, "./src/recoil"),
       "@hooks": path.resolve(__dirname, "./src/hooks"),
       "@api": path.resolve(__dirname, "./src/api/index.ts"),
+      "@lib": path.resolve(__dirname, "./src/lib"),
     },
   },
   module: {
