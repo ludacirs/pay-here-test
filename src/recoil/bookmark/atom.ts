@@ -1,8 +1,9 @@
 import { atom } from "recoil";
+import { getStorageItem } from "@lib/storage";
 
 const bookmarkAtom = atom<Bookmark[]>({
   key: "bookmarkAtom",
-  default: [],
+  default: getStorageItem("BOOK_MARKED_REPOSITORY") ?? [],
 });
 
 export default bookmarkAtom;
