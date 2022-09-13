@@ -1,3 +1,5 @@
+import { SearchInput } from "./SearchInput";
 import { Header } from "./Header";
+import { RepositoryList } from "./RepositoryList";
 
-export { Header };
+export { SearchInput, Header, RepositoryList };

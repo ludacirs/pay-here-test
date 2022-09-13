@@ -17,6 +17,8 @@ module.exports = {
       process: "process/browser",
       "@components": path.resolve(__dirname, "./src/components"),
       "@recoil": path.resolve(__dirname, "./src/recoil"),
+      "@hooks": path.resolve(__dirname, "./src/hooks"),
+      "@api": path.resolve(__dirname, "./src/api/index.ts"),
     },
   },
   module: {

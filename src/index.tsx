@@ -1,9 +1,12 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import { RecoilRoot } from "recoil";
+import { QueryClient, QueryClientProvider } from "react-query";
 import { Global } from "@emotion/react";
+import { RecoilRoot } from "recoil";
 import reset from "./resetCss";
 import App from "./App";
+
+const queryClient = new QueryClient();
 
 const root = ReactDOM.createRoot(
   document.getElementById("root") as HTMLElement,
@@ -11,9 +14,11 @@ const root = ReactDOM.createRoot(
 
 root.render(
   <>
-    <RecoilRoot>
-      <Global styles={reset} />
-      <App />
-    </RecoilRoot>
+    <QueryClientProvider client={queryClient}>
+      <RecoilRoot>
+        <Global styles={reset} />
+        <App />
+      </RecoilRoot>
+    </QueryClientProvider>
   </>,
 );

@@ -1,8 +1,21 @@
-import React from "react";
 import { Grid } from "@mui/material";
-import { Header } from "./components";
+import tabAtom from "@recoil/tab";
+import React from "react";
+import { useRecoilValue } from "recoil";
+import { Header, RepositoryList, SearchInput } from "./components";
 
 const App = () => {
+  const tabValue = useRecoilValue(tabAtom);
+  const content =
+    tabValue === 1 ? (
+      <>Issues</>
+    ) : (
+      <>
+        <SearchInput />
+        <RepositoryList />
+      </>
+    );
+
   return (
     <Grid
       className={"container"}
@@ -12,6 +25,9 @@ const App = () => {
       height={"100vh"}
     >
       <Header />
+      <Grid container padding={2}>
+        {content}
+      </Grid>
     </Grid>
   );
 };

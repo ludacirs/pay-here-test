@@ -7,7 +7,9 @@
     "baseUrl": ".",
     "paths": {
       "@components/*": ["./src/components/*"],
-      "@recoil/*": ["./src/recoil/*"]
+      "@recoil/*": ["./src/recoil/*"],
+      "@hooks/*": ["./src/hooks/*"],
+      "@api": ["./src/api/index.ts"]
     },
 
     "isolatedModules": true,
