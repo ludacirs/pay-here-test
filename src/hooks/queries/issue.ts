@@ -1,25 +1,26 @@
-import { useQuery } from "react-query";
+import { useQueries } from "react-query";
 import octokit from "@api";
-import { ReturnTypeOf } from "@octokit/core/dist-types/types";
 import { Bookmark } from "@recoil/bookmark/atom";
 import { ISSUE_KEY } from "./queryKeys";
 
 const fetchSearchIssueByRepository = ({ owner, repo }: Bookmark) =>
-  octokit.request(`GET /repos/{owner}/{repo}/issues`, {
-    owner,
-    repo,
-  });
+  octokit
+    .request(`GET /repos/{owner}/{repo}/issues`, {
+      owner,
+      repo,
+    })
+    .catch((e) => {
+      throw e;
+    });
 
-const useIssueByRepository = ({ owner, repo }: Bookmark) => {
-  return useQuery(
-    [ISSUE_KEY.SEARCH],
-    () => fetchSearchIssueByRepository({ owner, repo }),
-    {
-      enabled: false,
-    },
+const useIssueByRepositories = (bookmarks: Bookmark[]) =>
+  useQueries(
+    bookmarks.map((bookmark) => {
+      return {
+        queryKey: [ISSUE_KEY.SEARCH, bookmark],
+        queryFn: () => fetchSearchIssueByRepository(bookmark),
+      };
+    }),
   );
-};
 
-export default useIssueByRepository;
-
-export type OctoRepository = ReturnTypeOf<typeof useIssueByRepository>["data"];
+export default useIssueByRepositories;
