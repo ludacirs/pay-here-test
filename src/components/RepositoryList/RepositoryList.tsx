@@ -1,6 +1,8 @@
 import React, { CSSProperties } from "react";
 import { FixedSizeList } from "react-window";
+import AutoSizer from "react-virtualized-auto-sizer";
 import {
+  Box,
   ListItem,
   ListItemButton,
   ListItemIcon,
@@ -12,7 +14,7 @@ import { useRecoilValue, useSetRecoilState } from "recoil";
 import searchValueAtom from "@recoil/searchValue";
 import useRepository from "@hooks/queries/repository";
 import { setStorageItem } from "@lib/storage";
-import bookmarkAtom, { Bookmark } from "@recoil/bookmark/atom";
+import bookmarkAtom, { Bookmark } from "@recoil/bookmark";
 
 const RepositoryList = () => {
   const searchValue = useRecoilValue(searchValueAtom);
@@ -23,7 +25,29 @@ const RepositoryList = () => {
   const repositories = repository?.data?.items ?? [];
 
   const handleAddBookMark = ({ owner, repo }: Bookmark) => {
-    setStorageItem("BOOK_MARKED_REPOSITORY", { owner, repo });
+    setBookmark((prevState) => {
+      const prevLength = prevState.length;
+
+      const nextState = prevState.filter(
+        ({ owner: prevOwner, repo: prevRepo }) =>
+          !(prevOwner === owner && prevRepo === repo),
+      );
+      if (nextState.length >= 4) {
+        return nextState;
+      }
+
+      if (prevLength === nextState.length) {
+        // add
+        setStorageItem("BOOK_MARKED_REPOSITORY", [
+          ...nextState,
+          { owner, repo },
+        ]);
+        return [...nextState, { owner, repo }];
+      }
+
+      setStorageItem("BOOK_MARKED_REPOSITORY", nextState);
+      return nextState;
+    });
   };
 
   const RepositoryListItem = ({
@@ -37,8 +61,8 @@ const RepositoryList = () => {
     const ownerName = repositories[index].owner?.login ?? null;
     const repoName = repositories[index].name;
 
-    if (ownerName) {
-      handleAddBookMark({ owner: ownerName, repo: repoName });
+    if (!ownerName) {
+      return null;
     }
 
     return (
@@ -49,6 +73,7 @@ const RepositoryList = () => {
           padding: `16px 0`,
           borderBottom: `1px solid ${grey[100]}`,
         }}
+        onClick={() => handleAddBookMark({ owner: ownerName, repo: repoName })}
       >
         <ListItemButton>
           <ListItemIcon>
@@ -63,14 +88,20 @@ const RepositoryList = () => {
   };
 
   return (
-    <FixedSizeList
-      width={"100%"}
-      height={360}
-      itemCount={repositories.length}
-      itemSize={60}
-    >
-      {RepositoryListItem}
-    </FixedSizeList>
+    <Box style={{ width: "100%", height: "100%" }}>
+      <AutoSizer>
+        {({ height, width }) => (
+          <FixedSizeList
+            width={width}
+            height={height}
+            itemCount={repositories.length}
+            itemSize={60}
+          >
+            {RepositoryListItem}
+          </FixedSizeList>
+        )}
+      </AutoSizer>
+    </Box>
   );
 };
 

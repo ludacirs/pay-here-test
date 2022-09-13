@@ -2,13 +2,13 @@ import { Grid } from "@mui/material";
 import tabAtom from "@recoil/tab";
 import React from "react";
 import { useRecoilValue } from "recoil";
-import { Header, RepositoryList, SearchInput } from "./components";
+import { Header, IssueList, RepositoryList, SearchInput } from "./components";
 
 const App = () => {
   const tabValue = useRecoilValue(tabAtom);
   const content =
     tabValue === 1 ? (
-      <>Issues</>
+      <IssueList />
     ) : (
       <>
         <SearchInput />
@@ -25,7 +25,7 @@ const App = () => {
       height={"100vh"}
     >
       <Header />
-      <Grid container padding={2}>
+      <Grid container padding={2} height={"calc(100% - 220px)"}>
         {content}
       </Grid>
     </Grid>
