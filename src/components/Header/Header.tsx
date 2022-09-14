@@ -1,17 +1,30 @@
 import React from "react";
 import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
-import { Box, Chip, Stack, Tab, Tabs, Typography } from "@mui/material";
-import tabAtom from "@recoil/tab";
-import bookmarkAtom, { Bookmark } from "@recoil/bookmark";
-import { stringToRGB } from "@lib/string";
+import { Box, Stack, Tab, Tabs, Typography } from "@mui/material";
+import { RepositoryChip } from "@components/RepositoryChip";
 import { setStorageItem } from "@lib/storage";
+import bookmarkAtom, { Bookmark } from "@recoil/bookmark";
+import tabAtom from "@recoil/tab";
 
 const Header = () => {
   const [tabValue, setTabValue] = useRecoilState(tabAtom);
+  const setBookmarks = useSetRecoilState(bookmarkAtom);
   const bookmarks = useRecoilValue(bookmarkAtom);
 
   const handleChangeTab = (_: React.SyntheticEvent, newValue: number) => {
     setTabValue(newValue);
+  };
+
+  const handleDelete = ({ owner, repo }: Bookmark) => {
+    setBookmarks((prev) => {
+      const nextBookmarks = prev.filter(
+        ({ owner: prevOwner, repo: prevRepo }) =>
+          !(prevOwner === owner && prevRepo === repo),
+      );
+
+      setStorageItem("BOOK_MARKED_REPOSITORY", nextBookmarks);
+      return nextBookmarks;
+    });
   };
 
   return (
@@ -48,7 +61,13 @@ const Header = () => {
         >
           {bookmarks.map(({ owner, repo }) => {
             return (
-              <RepositoryChip key={owner + repo} owner={owner} repo={repo} />
+              <RepositoryChip
+                key={owner + repo}
+                owner={owner}
+                repo={repo}
+                onDelete={() => handleDelete({ owner, repo })}
+                sx={{ width: "20%" }}
+              />
             );
           })}
         </Stack>
@@ -58,35 +77,3 @@ const Header = () => {
 };
 
 export default Header;
-
-const RepositoryChip = ({ owner, repo }: Bookmark) => {
-  const setBookmarks = useSetRecoilState(bookmarkAtom);
-
-  const handleDelete = () => {
-    setBookmarks((prev) => {
-      const nextBookmarks = prev.filter(
-        ({ owner: prevOwner, repo: prevRepo }) =>
-          !(prevOwner === owner && prevRepo === repo),
-      );
-
-      setStorageItem("BOOK_MARKED_REPOSITORY", nextBookmarks);
-      return nextBookmarks;
-    });
-  };
-
-  return (
-    <Chip
-      variant="filled"
-      label={
-        <Typography noWrap>
-          {owner}/{repo}
-        </Typography>
-      }
-      onDelete={handleDelete}
-      sx={{
-        bgcolor: `#${stringToRGB(owner + repo)}`,
-        width: "20%",
-      }}
-    />
-  );
-};
