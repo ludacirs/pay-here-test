@@ -9,12 +9,12 @@ import {
   ListItemText,
 } from "@mui/material";
 import { grey } from "@mui/material/colors";
-import LibraryBooksIcon from "@mui/icons-material/LibraryBooks";
 import { useRecoilValue, useSetRecoilState } from "recoil";
 import searchValueAtom from "@recoil/searchValue";
 import useRepository from "@hooks/queries/repository";
 import { setStorageItem } from "@lib/storage";
 import bookmarkAtom, { Bookmark } from "@recoil/bookmark";
+import { RepoIcon } from "@primer/octicons-react";
 
 const RepositoryList = () => {
   const searchValue = useRecoilValue(searchValueAtom);
@@ -77,8 +77,7 @@ const RepositoryList = () => {
       >
         <ListItemButton>
           <ListItemIcon>
-            {/* todo: octicon 으로 바꾸기 */}
-            <LibraryBooksIcon />
+            <RepoIcon size={24} />
           </ListItemIcon>
 
           <ListItemText>{fullName}</ListItemText>
