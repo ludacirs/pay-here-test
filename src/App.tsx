@@ -1,9 +1,7 @@
 import React from "react";
 import { Grid } from "@mui/material";
-import { Route, Routes, Navigate } from "react-router-dom";
+import { Route, Routes } from "react-router-dom";
 import { Header, IssueList, RepositoryList, SearchInput } from "./components";
-import useQeuryString from "@hooks/useQueryString";
-import ListPagination from "@components/ListPagination/ListPagination";
 
 const App = () => {
   return (
