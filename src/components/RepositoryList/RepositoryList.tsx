@@ -7,6 +7,7 @@ import {
   ListItemButton,
   ListItemIcon,
   ListItemText,
+  Skeleton,
 } from "@mui/material";
 import { grey } from "@mui/material/colors";
 import { useRecoilValue, useSetRecoilState } from "recoil";
@@ -20,7 +21,22 @@ const RepositoryList = () => {
   const searchValue = useRecoilValue(searchValueAtom);
   const setBookmark = useSetRecoilState(bookmarkAtom);
 
-  const { data: repository } = useRepository(searchValue);
+  const { data: repository, isFetching } = useRepository(searchValue);
+
+  if (isFetching) {
+    return Array(20)
+      .fill(1)
+      .map((_, index) => (
+        <Skeleton
+          key={index}
+          variant="rectangular"
+          animation={"wave"}
+          width={"100%"}
+          height={60}
+          sx={{ margin: `4px 0` }}
+        />
+      ));
+  }
 
   const repositories = repository?.data?.items ?? [];
 

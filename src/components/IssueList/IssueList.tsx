@@ -23,10 +23,21 @@ const IssueList = () => {
 
   const result = useIssueByRepositories(bookmarks);
 
-  const isFinishedAll = result.some(({ isLoading }) => isLoading);
+  const isFinishedAll = result.some(({ isFetching }) => isFetching);
 
   if (isFinishedAll) {
-    return <>loading...</>;
+    return Array(20)
+      .fill(1)
+      .map((_, index) => (
+        <Skeleton
+          key={index}
+          variant="rectangular"
+          animation={"wave"}
+          width={"100%"}
+          height={90}
+          sx={{ margin: `4px 0` }}
+        />
+      ));
   }
 
   const issues = result
