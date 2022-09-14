@@ -4,11 +4,12 @@ import AutoSizer from "react-virtualized-auto-sizer";
 import {
   Alert,
   Box,
+  Grid,
   ListItem,
   ListItemButton,
   ListItemIcon,
   ListItemText,
-  Skeleton,
+  Pagination,
   Snackbar,
 } from "@mui/material";
 import { blueGrey, grey } from "@mui/material/colors";
@@ -18,20 +19,18 @@ import { setStorageItem } from "@lib/storage";
 import bookmarkAtom, { Bookmark } from "@recoil/bookmark";
 import { RepoIcon } from "@primer/octicons-react";
 import useQeuryString from "@hooks/useQueryString";
-import ListSkeleton from "@components/common/ListSkeleton";
+import { ListSkeleton } from "@components/common";
 
 const RepositoryList = () => {
   const [open, setOpen] = useState(false);
-  const { queryStringObject } = useQeuryString();
+  const { queryStringObject, changeQueryString } = useQeuryString();
   const [bookmark, setBookmark] = useRecoilState(bookmarkAtom);
+  const page = Number(queryStringObject.page ?? 1);
   const {
     data: repository,
     isFetching,
     refetch: searchRepository,
-  } = useRepositoryByPage(
-    queryStringObject.q as string,
-    Number(queryStringObject.page),
-  );
+  } = useRepositoryByPage(queryStringObject.q as string, page);
 
   useEffect(() => {
     queryStringObject.q && queryStringObject.page && searchRepository();
@@ -42,6 +41,7 @@ const RepositoryList = () => {
   }
 
   const repositories = repository?.data?.items ?? [];
+  const totalCount = repository?.data.total_count ?? 0;
 
   const handleClick = () => {
     setOpen(true);
@@ -117,25 +117,37 @@ const RepositoryList = () => {
   RepositoryListItem.displayName = "RepositoryListItem";
 
   return (
-    <Box style={{ width: "100%", height: "100%" }}>
-      <AutoSizer>
-        {({ height, width }) => (
-          <FixedSizeList
-            width={width}
-            height={height}
-            itemCount={repositories.length}
-            itemSize={60}
-          >
-            {RepositoryListItem}
-          </FixedSizeList>
-        )}
-      </AutoSizer>
-      <Snackbar open={open} autoHideDuration={3000} onClose={handleClose}>
-        <Alert severity="error" sx={{ width: "100%" }} onClose={handleClose}>
-          레포지토리는 최대 4개까지 등록할 수 있습니다.
-        </Alert>
-      </Snackbar>
-    </Box>
+    <>
+      <Box style={{ width: "100%", height: "calc(100% - 40px)" }}>
+        <AutoSizer>
+          {({ height, width }) => (
+            <FixedSizeList
+              width={width}
+              height={height}
+              itemCount={repositories.length}
+              itemSize={60}
+            >
+              {RepositoryListItem}
+            </FixedSizeList>
+          )}
+        </AutoSizer>
+        <Snackbar open={open} autoHideDuration={3000} onClose={handleClose}>
+          <Alert severity="error" sx={{ width: "100%" }} onClose={handleClose}>
+            레포지토리는 최대 4개까지 등록할 수 있습니다.
+          </Alert>
+        </Snackbar>
+      </Box>
+      <Grid width={"100%"} container justifyContent={"center"}>
+        <Pagination
+          count={Math.ceil((totalCount > 1000 ? 1000 : totalCount) / 30)}
+          page={page}
+          color={"primary"}
+          onChange={(_, value) => {
+            changeQueryString({ page: value.toString() });
+          }}
+        />
+      </Grid>
+    </>
   );
 };
 

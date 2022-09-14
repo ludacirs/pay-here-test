@@ -1,9 +1,15 @@
 import React from "react";
 import { Skeleton } from "@mui/material";
 
-const ListSkeleton = ({ height }: { height?: number }) => (
+const ListSkeleton = ({
+  count = 8,
+  height = 60,
+}: {
+  count?: number;
+  height?: number;
+}) => (
   <>
-    {Array(20)
+    {Array(count)
       .fill(1)
       .map((_, index) => (
         <Skeleton

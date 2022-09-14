@@ -29,7 +29,6 @@ const App = () => {
           <Route path="/issues" element={<IssueList />} />
         </Routes>
       </Grid>
-      <ListPagination />
     </Grid>
   );
 };

@@ -6,10 +6,12 @@ import { FixedSizeList } from "react-window";
 import AutoSizer from "react-virtualized-auto-sizer";
 import {
   Box,
+  Grid,
   ListItem,
   ListItemButton,
   ListItemIcon,
   ListItemText,
+  Pagination,
   Skeleton,
   Typography,
 } from "@mui/material";
@@ -18,16 +20,14 @@ import { IssueClosedIcon, IssueOpenedIcon } from "@primer/octicons-react";
 import { RepositoryChip } from "@components/RepositoryChip";
 import { format } from "date-fns";
 import useQeuryString from "@hooks/useQueryString";
-import ListSkeleton from "@components/common/ListSkeleton";
+import { ListSkeleton } from "@components/common";
 
 const IssueList = () => {
-  const { queryStringObject } = useQeuryString();
+  const { queryStringObject, changeQueryString } = useQeuryString();
   const bookmarks = useRecoilValue(bookmarkAtom);
+  const page = Number(queryStringObject.page ?? 1);
 
-  const result = useIssueByRepositories(
-    bookmarks,
-    Number(queryStringObject.page ?? 1),
-  );
+  const result = useIssueByRepositories(bookmarks, page);
 
   const isFinishedAll = result.some(({ isFetching }) => isFetching);
 
@@ -84,20 +84,55 @@ const IssueList = () => {
   );
   IssueItem.displayName = "IssueItem";
 
-  return (
-    <Box style={{ width: "100%", height: "100%" }}>
-      <AutoSizer>
-        {({ height, width }) => (
-          <FixedSizeList
-            width={width}
-            height={height}
-            itemCount={issues.length}
-            itemSize={90}
+  return bookmarks.length ? (
+    <>
+      <Box style={{ width: "100%", height: "100%" }}>
+        {!issues.length && (
+          <Box
+            width={"100%"}
+            height={"100%"}
+            display={"flex"}
+            justifyContent={"center"}
+            alignItems={"center"}
           >
-            {IssueItem}
-          </FixedSizeList>
+            이슈가 없습니다.
+          </Box>
         )}
-      </AutoSizer>
+        <AutoSizer>
+          {({ height, width }) => (
+            <FixedSizeList
+              width={width}
+              height={height}
+              itemCount={issues.length}
+              itemSize={90}
+            >
+              {IssueItem}
+            </FixedSizeList>
+          )}
+        </AutoSizer>
+      </Box>
+      <Grid width={"100%"} container justifyContent={"center"}>
+        <Pagination
+          siblingCount={0}
+          count={Infinity}
+          page={page}
+          color={"primary"}
+          onChange={(_, value) => {
+            changeQueryString({ page: value.toString() });
+          }}
+          hideNextButton={!issues.length}
+        />
+      </Grid>
+    </>
+  ) : (
+    <Box
+      width={"100%"}
+      height={"100%"}
+      display={"flex"}
+      justifyContent={"center"}
+      alignItems={"center"}
+    >
+      레포지토리를 선택해주세요.
     </Box>
   );
 };
