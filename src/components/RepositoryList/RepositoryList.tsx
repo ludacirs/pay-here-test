@@ -18,6 +18,7 @@ import { setStorageItem } from "@lib/storage";
 import bookmarkAtom, { Bookmark } from "@recoil/bookmark";
 import { RepoIcon } from "@primer/octicons-react";
 import useQeuryString from "@hooks/useQueryString";
+import ListSkeleton from "@components/common/ListSkeleton";
 
 const RepositoryList = () => {
   const [open, setOpen] = useState(false);
@@ -37,22 +38,7 @@ const RepositoryList = () => {
   }, [queryStringObject.q, queryStringObject.page]);
 
   if (isFetching) {
-    return (
-      <>
-        {Array(20)
-          .fill(1)
-          .map((_, index) => (
-            <Skeleton
-              key={index}
-              variant="rectangular"
-              animation={"wave"}
-              width={"100%"}
-              height={60}
-              sx={{ margin: `4px 0` }}
-            />
-          ))}
-      </>
-    );
+    return <ListSkeleton height={60} />;
   }
 
   const repositories = repository?.data?.items ?? [];
@@ -91,45 +77,44 @@ const RepositoryList = () => {
     });
   };
 
-  const RepositoryListItem = ({
-    index,
-    style,
-  }: {
-    index: number;
-    style: CSSProperties;
-  }) => {
-    const fullName = repositories[index]?.full_name ?? "";
-    const ownerName = repositories[index].owner?.login ?? null;
-    const repoName = repositories[index].name;
+  const RepositoryListItem = React.memo(
+    ({ index, style }: { index: number; style: CSSProperties }) => {
+      const fullName = repositories[index]?.full_name ?? "";
+      const ownerName = repositories[index].owner?.login ?? null;
+      const repoName = repositories[index].name;
 
-    if (!ownerName) {
-      return null;
-    }
-    const selected = bookmark.some(
-      ({ owner, repo }) => owner === ownerName && repo === repoName,
-    );
+      if (!ownerName) {
+        return null;
+      }
+      const selected = bookmark.some(
+        ({ owner, repo }) => owner === ownerName && repo === repoName,
+      );
 
-    return (
-      <ListItem
-        style={style}
-        key={index}
-        sx={{
-          padding: `16px 0`,
-          borderBottom: `1px solid ${grey[100]}`,
-          bgcolor: selected ? blueGrey[300] : "none",
-        }}
-        onClick={() => handleAddBookMark({ owner: ownerName, repo: repoName })}
-      >
-        <ListItemButton>
-          <ListItemIcon>
-            <RepoIcon size={24} />
-          </ListItemIcon>
+      return (
+        <ListItem
+          style={style}
+          key={index}
+          sx={{
+            padding: `16px 0`,
+            borderBottom: `1px solid ${grey[100]}`,
+            bgcolor: selected ? blueGrey[300] : "none",
+          }}
+          onClick={() =>
+            handleAddBookMark({ owner: ownerName, repo: repoName })
+          }
+        >
+          <ListItemButton>
+            <ListItemIcon>
+              <RepoIcon size={24} />
+            </ListItemIcon>
 
-          <ListItemText>{fullName}</ListItemText>
-        </ListItemButton>
-      </ListItem>
-    );
-  };
+            <ListItemText>{fullName}</ListItemText>
+          </ListItemButton>
+        </ListItem>
+      );
+    },
+  );
+  RepositoryListItem.displayName = "RepositoryListItem";
 
   return (
     <Box style={{ width: "100%", height: "100%" }}>

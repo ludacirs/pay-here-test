@@ -17,27 +17,22 @@ import { grey } from "@mui/material/colors";
 import { IssueClosedIcon, IssueOpenedIcon } from "@primer/octicons-react";
 import { RepositoryChip } from "@components/RepositoryChip";
 import { format } from "date-fns";
+import useQeuryString from "@hooks/useQueryString";
+import ListSkeleton from "@components/common/ListSkeleton";
 
 const IssueList = () => {
+  const { queryStringObject } = useQeuryString();
   const bookmarks = useRecoilValue(bookmarkAtom);
 
-  const result = useIssueByRepositories(bookmarks);
+  const result = useIssueByRepositories(
+    bookmarks,
+    Number(queryStringObject.page ?? 1),
+  );
 
   const isFinishedAll = result.some(({ isFetching }) => isFetching);
 
   if (isFinishedAll) {
-    return Array(20)
-      .fill(1)
-      .map((_, index) => (
-        <Skeleton
-          key={index}
-          variant="rectangular"
-          animation={"wave"}
-          width={"100%"}
-          height={90}
-          sx={{ margin: `4px 0` }}
-        />
-      ));
+    return <ListSkeleton height={90} />;
   }
 
   const issues = result
@@ -46,51 +41,48 @@ const IssueList = () => {
     .filter((v) => v && v.pull_request)
     .sort((a, b) => (a!.created_at > b!.created_at ? -1 : 1));
 
-  const IssueItem = ({
-    index,
-    style,
-  }: {
-    index: number;
-    style: CSSProperties;
-  }) => {
-    const data = issues[index];
-    if (!data) {
-      return <Skeleton variant="rectangular" />;
-    }
-    const { id, html_url, state, created_at, title } = data;
-    const [owner, repo] = getRepositoryNameByIssueUrl(html_url).split("/");
+  const IssueItem = React.memo(
+    ({ index, style }: { index: number; style: CSSProperties }) => {
+      const data = issues[index];
+      if (!data) {
+        return <Skeleton variant="rectangular" />;
+      }
+      const { id, html_url, state, created_at, title } = data;
+      const [owner, repo] = getRepositoryNameByIssueUrl(html_url).split("/");
 
-    return (
-      <ListItem
-        style={style}
-        key={id}
-        sx={{
-          padding: `16px 0`,
-          borderBottom: `1px solid ${grey[100]}`,
-        }}
-      >
-        <ListItemButton
-          component="a"
-          target={"_blank"}
-          href={html_url}
-          sx={{ width: "100%" }}
+      return (
+        <ListItem
+          style={style}
+          key={id}
+          sx={{
+            padding: `16px 0`,
+            borderBottom: `1px solid ${grey[100]}`,
+          }}
         >
-          <ListItemIcon>{getIconByState(state)}</ListItemIcon>
-          <Box display={"flex"} alignItems={"baseline"} gap={2} width={"90%"}>
-            <ListItemText
-              sx={{ width: "10%" }}
-              primary={<RepositoryChip owner={owner} repo={repo} />}
-              secondary={format(new Date(created_at), "yyyy-MM-dd")}
-            />
-            <ListItemText
-              sx={{ width: `calc(100% - 200px)` }}
-              primary={<Typography noWrap>{title}</Typography>}
-            />
-          </Box>
-        </ListItemButton>
-      </ListItem>
-    );
-  };
+          <ListItemButton
+            component="a"
+            target={"_blank"}
+            href={html_url}
+            sx={{ width: "100%" }}
+          >
+            <ListItemIcon>{getIconByState(state)}</ListItemIcon>
+            <Box display={"flex"} alignItems={"baseline"} gap={2} width={"90%"}>
+              <ListItemText
+                sx={{ width: "10%" }}
+                primary={<RepositoryChip owner={owner} repo={repo} />}
+                secondary={format(new Date(created_at), "yyyy-MM-dd")}
+              />
+              <ListItemText
+                sx={{ width: `calc(100% - 200px)` }}
+                primary={<Typography noWrap>{title}</Typography>}
+              />
+            </Box>
+          </ListItemButton>
+        </ListItem>
+      );
+    },
+  );
+  IssueItem.displayName = "IssueItem";
 
   return (
     <Box style={{ width: "100%", height: "100%" }}>
