@@ -1,18 +1,19 @@
-import React from "react";
-import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
+import React, { useEffect, useState } from "react";
+import { useRecoilValue, useSetRecoilState } from "recoil";
 import { Box, Stack, Tab, Tabs, Typography } from "@mui/material";
 import { RepositoryChip } from "@components/RepositoryChip";
 import { setStorageItem } from "@lib/storage";
 import bookmarkAtom, { Bookmark } from "@recoil/bookmark";
-import tabAtom from "@recoil/tab";
+import { useLocation, useNavigate } from "react-router-dom";
 
 const Header = () => {
-  const [tabValue, setTabValue] = useRecoilState(tabAtom);
   const setBookmarks = useSetRecoilState(bookmarkAtom);
+  const { pathname } = useLocation();
   const bookmarks = useRecoilValue(bookmarkAtom);
+  const navigate = useNavigate();
 
-  const handleChangeTab = (_: React.SyntheticEvent, newValue: number) => {
-    setTabValue(newValue);
+  const handleChangeTab = (_: React.SyntheticEvent, newValue: string) => {
+    navigate(newValue);
   };
 
   const handleDelete = ({ owner, repo }: Bookmark) => {
@@ -21,7 +22,6 @@ const Header = () => {
         ({ owner: prevOwner, repo: prevRepo }) =>
           !(prevOwner === owner && prevRepo === repo),
       );
-
       setStorageItem("BOOK_MARKED_REPOSITORY", nextBookmarks);
       return nextBookmarks;
     });
@@ -45,12 +45,12 @@ const Header = () => {
 
       <Tabs
         className={"header-tabs"}
-        value={tabValue}
+        value={pathname}
         onChange={handleChangeTab}
         variant={"fullWidth"}
       >
-        <Tab label={"search repository"} />
-        <Tab label={"issues"} />
+        <Tab label={"search repository"} value={"/"} />
+        <Tab label={"issues"} value={"/issues"} />
       </Tabs>
       {!!bookmarks.length && (
         <Stack

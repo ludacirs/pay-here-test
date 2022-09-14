@@ -1,17 +1,17 @@
 import { useQuery } from "react-query";
 import octokit from "@api";
 import { REPOSITORY_KEY } from "./queryKeys";
-import { ReturnTypeOf } from "@octokit/core/dist-types/types";
+const fetchSearchRepository = (q: string, page?: number) =>
+  octokit.request("GET /search/repositories", { q, page });
 
-const fetchSearchRepository = (q: string) =>
-  octokit.request("GET /search/repositories", { q });
-
-const useRepository = (q: string) => {
-  return useQuery([REPOSITORY_KEY.SEARCH], () => fetchSearchRepository(q), {
-    enabled: false,
-  });
+export const useRepositoryByPage = (q: string, page: number) => {
+  return useQuery(
+    [REPOSITORY_KEY.SEARCH, { q, page }],
+    () => fetchSearchRepository(q, page),
+    {
+      enabled: false,
+    },
+  );
 };
 
-export default useRepository;
-
-export type OctoRepository = ReturnTypeOf<typeof useRepository>["data"];
+export default useRepositoryByPage;

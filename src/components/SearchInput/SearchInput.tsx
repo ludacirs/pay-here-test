@@ -1,22 +1,23 @@
-import React from "react";
-import { useRecoilState } from "recoil";
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { FormControl, TextField } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import CancelIcon from "@mui/icons-material/Cancel";
-import useRepository from "@hooks/queries/repository";
-import searchValueAtom from "@recoil/searchValue";
+import useQueryString from "@hooks/useQueryString";
 
 function SearchInput(): JSX.Element {
-  const [value, setValue] = useRecoilState(searchValueAtom);
+  const { queryStringObject } = useQueryString();
+  const [value, setValue] = useState(queryStringObject?.q ?? "");
+  const navigate = useNavigate();
+
   const isValueEmpty = !value.length;
-  const { refetch: searchRepository } = useRepository(value);
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (isValueEmpty) {
       return;
     }
-    searchRepository();
+    navigate(`?q=${value}&page=1`);
   };
 
   return (

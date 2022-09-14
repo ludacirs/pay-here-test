@@ -1,21 +1,11 @@
-import { Grid } from "@mui/material";
-import tabAtom from "@recoil/tab";
 import React from "react";
-import { useRecoilValue } from "recoil";
+import { Grid } from "@mui/material";
+import { Route, Routes, Navigate } from "react-router-dom";
 import { Header, IssueList, RepositoryList, SearchInput } from "./components";
+import useQeuryString from "@hooks/useQueryString";
+import ListPagination from "@components/ListPagination/ListPagination";
 
 const App = () => {
-  const tabValue = useRecoilValue(tabAtom);
-  const content =
-    tabValue === 1 ? (
-      <IssueList />
-    ) : (
-      <>
-        <SearchInput />
-        <RepositoryList />
-      </>
-    );
-
   return (
     <Grid
       className={"container"}
@@ -26,8 +16,20 @@ const App = () => {
     >
       <Header />
       <Grid container padding={2} height={"calc(100% - 220px)"}>
-        {content}
+        <Routes>
+          <Route
+            path="/"
+            element={
+              <>
+                <SearchInput />
+                <RepositoryList />
+              </>
+            }
+          />
+          <Route path="/issues" element={<IssueList />} />
+        </Routes>
       </Grid>
+      <ListPagination />
     </Grid>
   );
 };

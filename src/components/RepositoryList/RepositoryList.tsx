@@ -1,4 +1,4 @@
-import React, { CSSProperties, useState } from "react";
+import React, { CSSProperties, useEffect, useState } from "react";
 import { FixedSizeList } from "react-window";
 import AutoSizer from "react-virtualized-auto-sizer";
 import {
@@ -12,32 +12,47 @@ import {
   Snackbar,
 } from "@mui/material";
 import { blueGrey, grey } from "@mui/material/colors";
-import { useRecoilState, useRecoilValue } from "recoil";
-import searchValueAtom from "@recoil/searchValue";
-import useRepository from "@hooks/queries/repository";
+import { useRecoilState } from "recoil";
+import { useRepositoryByPage } from "@hooks/queries/repository";
 import { setStorageItem } from "@lib/storage";
 import bookmarkAtom, { Bookmark } from "@recoil/bookmark";
 import { RepoIcon } from "@primer/octicons-react";
+import useQeuryString from "@hooks/useQueryString";
 
 const RepositoryList = () => {
-  const searchValue = useRecoilValue(searchValueAtom);
-  const [bookmark, setBookmark] = useRecoilState(bookmarkAtom);
-  const { data: repository, isFetching } = useRepository(searchValue);
   const [open, setOpen] = useState(false);
+  const { queryStringObject } = useQeuryString();
+  const [bookmark, setBookmark] = useRecoilState(bookmarkAtom);
+  const {
+    data: repository,
+    isFetching,
+    refetch: searchRepository,
+  } = useRepositoryByPage(
+    queryStringObject.q as string,
+    Number(queryStringObject.page),
+  );
+
+  useEffect(() => {
+    queryStringObject.q && queryStringObject.page && searchRepository();
+  }, [queryStringObject.q, queryStringObject.page]);
 
   if (isFetching) {
-    return Array(20)
-      .fill(1)
-      .map((_, index) => (
-        <Skeleton
-          key={index}
-          variant="rectangular"
-          animation={"wave"}
-          width={"100%"}
-          height={60}
-          sx={{ margin: `4px 0` }}
-        />
-      ));
+    return (
+      <>
+        {Array(20)
+          .fill(1)
+          .map((_, index) => (
+            <Skeleton
+              key={index}
+              variant="rectangular"
+              animation={"wave"}
+              width={"100%"}
+              height={60}
+              sx={{ margin: `4px 0` }}
+            />
+          ))}
+      </>
+    );
   }
 
   const repositories = repository?.data?.items ?? [];
