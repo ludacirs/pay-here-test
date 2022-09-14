@@ -1,13 +1,15 @@
-import React, { CSSProperties } from "react";
+import React, { CSSProperties, useState } from "react";
 import { FixedSizeList } from "react-window";
 import AutoSizer from "react-virtualized-auto-sizer";
 import {
+  Alert,
   Box,
   ListItem,
   ListItemButton,
   ListItemIcon,
   ListItemText,
   Skeleton,
+  Snackbar,
 } from "@mui/material";
 import { blueGrey, grey } from "@mui/material/colors";
 import { useRecoilState, useRecoilValue } from "recoil";
@@ -20,8 +22,8 @@ import { RepoIcon } from "@primer/octicons-react";
 const RepositoryList = () => {
   const searchValue = useRecoilValue(searchValueAtom);
   const [bookmark, setBookmark] = useRecoilState(bookmarkAtom);
-
   const { data: repository, isFetching } = useRepository(searchValue);
+  const [open, setOpen] = useState(false);
 
   if (isFetching) {
     return Array(20)
@@ -40,6 +42,13 @@ const RepositoryList = () => {
 
   const repositories = repository?.data?.items ?? [];
 
+  const handleClick = () => {
+    setOpen(true);
+  };
+  const handleClose = () => {
+    setOpen(false);
+  };
+
   const handleAddBookMark = ({ owner, repo }: Bookmark) => {
     setBookmark((prevState) => {
       const prevLength = prevState.length;
@@ -49,6 +58,7 @@ const RepositoryList = () => {
           !(prevOwner === owner && prevRepo === repo),
       );
       if (nextState.length >= 4) {
+        handleClick();
         return nextState;
       }
 
@@ -120,6 +130,11 @@ const RepositoryList = () => {
           </FixedSizeList>
         )}
       </AutoSizer>
+      <Snackbar open={open} autoHideDuration={3000} onClose={handleClose}>
+        <Alert severity="error" sx={{ width: "100%" }} onClose={handleClose}>
+          레포지토리는 최대 4개까지 등록할 수 있습니다.
+        </Alert>
+      </Snackbar>
     </Box>
   );
 };
