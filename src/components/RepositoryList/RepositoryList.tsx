@@ -9,8 +9,8 @@ import {
   ListItemText,
   Skeleton,
 } from "@mui/material";
-import { grey } from "@mui/material/colors";
-import { useRecoilValue, useSetRecoilState } from "recoil";
+import { blueGrey, grey } from "@mui/material/colors";
+import { useRecoilState, useRecoilValue } from "recoil";
 import searchValueAtom from "@recoil/searchValue";
 import useRepository from "@hooks/queries/repository";
 import { setStorageItem } from "@lib/storage";
@@ -19,7 +19,7 @@ import { RepoIcon } from "@primer/octicons-react";
 
 const RepositoryList = () => {
   const searchValue = useRecoilValue(searchValueAtom);
-  const setBookmark = useSetRecoilState(bookmarkAtom);
+  const [bookmark, setBookmark] = useRecoilState(bookmarkAtom);
 
   const { data: repository, isFetching } = useRepository(searchValue);
 
@@ -80,6 +80,9 @@ const RepositoryList = () => {
     if (!ownerName) {
       return null;
     }
+    const selected = bookmark.some(
+      ({ owner, repo }) => owner === ownerName && repo === repoName,
+    );
 
     return (
       <ListItem
@@ -88,6 +91,7 @@ const RepositoryList = () => {
         sx={{
           padding: `16px 0`,
           borderBottom: `1px solid ${grey[100]}`,
+          bgcolor: selected ? blueGrey[300] : "none",
         }}
         onClick={() => handleAddBookMark({ owner: ownerName, repo: repoName })}
       >
