@@ -10,8 +10,13 @@ import {
   ListItemButton,
   ListItemIcon,
   ListItemText,
+  Skeleton,
+  Typography,
 } from "@mui/material";
 import { grey } from "@mui/material/colors";
+import { IssueClosedIcon, IssueOpenedIcon } from "@primer/octicons-react";
+import { RepositoryChip } from "@components/RepositoryChip";
+import { format } from "date-fns";
 
 const IssueList = () => {
   const bookmarks = useRecoilValue(bookmarkAtom);
@@ -24,7 +29,11 @@ const IssueList = () => {
     return <>loading...</>;
   }
 
-  const issues = result.map(({ data }) => data?.data).flatMap((v) => v);
+  const issues = result
+    .map(({ data }) => data?.data)
+    .flatMap((v) => v)
+    .filter((v) => v && v.pull_request)
+    .sort((a, b) => (a!.created_at > b!.created_at ? -1 : 1));
 
   const IssueItem = ({
     index,
@@ -33,7 +42,12 @@ const IssueList = () => {
     index: number;
     style: CSSProperties;
   }) => {
-    const { id, html_url, state, created_at, title } = issues[index]!;
+    const data = issues[index];
+    if (!data) {
+      return <Skeleton variant="rectangular" />;
+    }
+    const { id, html_url, state, created_at, title } = data;
+    const [owner, repo] = getRepositoryNameByIssueUrl(html_url).split("/");
 
     return (
       <ListItem
@@ -44,9 +58,24 @@ const IssueList = () => {
           borderBottom: `1px solid ${grey[100]}`,
         }}
       >
-        <ListItemButton>
-          <ListItemIcon>{/* todo: octicon 으로 바꾸기 */}</ListItemIcon>
-          <ListItemText>{title}</ListItemText>
+        <ListItemButton
+          component="a"
+          target={"_blank"}
+          href={html_url}
+          sx={{ width: "100%" }}
+        >
+          <ListItemIcon>{getIconByState(state)}</ListItemIcon>
+          <Box display={"flex"} alignItems={"baseline"} gap={2} width={"90%"}>
+            <ListItemText
+              sx={{ width: "10%" }}
+              primary={<RepositoryChip owner={owner} repo={repo} />}
+              secondary={format(new Date(created_at), "yyyy-MM-dd")}
+            />
+            <ListItemText
+              sx={{ width: `calc(100% - 200px)` }}
+              primary={<Typography noWrap>{title}</Typography>}
+            />
+          </Box>
         </ListItemButton>
       </ListItem>
     );
@@ -60,7 +89,7 @@ const IssueList = () => {
             width={width}
             height={height}
             itemCount={issues.length}
-            itemSize={60}
+            itemSize={90}
           >
             {IssueItem}
           </FixedSizeList>
@@ -71,3 +100,15 @@ const IssueList = () => {
 };
 
 export default IssueList;
+
+const getIconByState = (state: string) => {
+  switch (state) {
+    case "open":
+      return <IssueOpenedIcon size={24} />;
+    case "closed":
+      return <IssueClosedIcon size={24} />;
+  }
+};
+
+const getRepositoryNameByIssueUrl = (htmlURL: string) =>
+  htmlURL.split("https://github.com/")[1].split("/issues/")[0];

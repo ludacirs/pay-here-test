@@ -8,6 +8,8 @@ const fetchSearchIssueByRepository = ({ owner, repo }: Bookmark) =>
     .request(`GET /repos/{owner}/{repo}/issues`, {
       owner,
       repo,
+      state: "all",
+      sort: "created",
     })
     .catch((e) => {
       throw e;
