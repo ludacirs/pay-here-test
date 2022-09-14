@@ -19,6 +19,7 @@ const useQeuryString = () => {
   return {
     queryStringObject,
     changeQueryString,
+    pathname,
   };
 };
 
@@ -36,5 +37,6 @@ const parseQueryStringToObject = (search: string) =>
 
 const stringifyObjectToQueryString = (queryString: QueryString) =>
   Object.entries(queryString)
+    .filter(([_, value]) => value)
     .map(([key, value]) => `${key}=${value}`)
     .join("&");

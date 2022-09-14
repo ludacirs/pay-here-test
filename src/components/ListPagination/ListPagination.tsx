@@ -4,21 +4,18 @@ import useQeuryString from "@hooks/useQueryString";
 import { useRepositoryByPage } from "@hooks/queries/repository";
 
 const ListPagination = () => {
-  const { queryStringObject, changeQueryString } = useQeuryString();
+  const { queryStringObject, changeQueryString, pathname } = useQeuryString();
   const { data: repository } = useRepositoryByPage(
     queryStringObject.q as string,
     Number(queryStringObject.page),
   );
-
-  // const result = useIssueByRepositories(bookmarks);
-
-  const totalCount = repository?.data.total_count ?? 0;
+  const totalCount = getTotalCount(pathname, repository?.data.total_count);
   const page = queryStringObject?.page ?? 1;
 
   return (
     <Grid width={"100%"} container justifyContent={"center"}>
       <Pagination
-        count={Math.ceil((totalCount > 1000 ? 1000 : totalCount) / 30)}
+        count={totalCount}
         page={Number(page)}
         color={"primary"}
         onChange={(_, value) => {
@@ -30,3 +27,15 @@ const ListPagination = () => {
 };
 
 export default ListPagination;
+
+const getTotalCount = (pathname: string, repositoryTotalCount?: number) => {
+  if (pathname.includes("issues")) {
+    return Infinity;
+  }
+  if (!repositoryTotalCount) {
+    return 0;
+  }
+  return Math.ceil(
+    (repositoryTotalCount > 1000 ? 1000 : repositoryTotalCount) / 30,
+  );
+};
